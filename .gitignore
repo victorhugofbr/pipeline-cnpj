@@ -1,0 +1,22 @@
+# --- Segredos: senhas e chaves NUNCA vão para o Git ---
+.env
+
+# --- Python: arquivos gerados automaticamente ---
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.ruff_cache/
+.pytest_cache/
+
+# --- Node.js / Next.js (usados no Módulo 4) ---
+node_modules/
+.next/
+
+# --- Dados da Receita Federal: são dezenas de GB ---
+data/
+
+# --- Lixo do sistema operacional ---
+Thumbs.db
+.DS_Store
+*.log

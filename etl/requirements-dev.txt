@@ -1,0 +1,6 @@
+# Ferramentas usadas só durante o desenvolvimento (não vão para produção).
+# A linha abaixo inclui também tudo o que está em requirements.txt.
+-r requirements.txt
+pytest==9.2.0
+# Ruff: o "revisor de redação" do código (estilo e erros comuns), configurado no ruff.toml da raiz.
+ruff==0.17.4

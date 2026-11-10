@@ -1,0 +1,6 @@
+# Padroniza o final de linha como LF (padrão Linux), pois o código roda em contêineres Linux.
+* text=auto eol=lf
+
+# Exceção: scripts que só rodam no Windows mantêm o formato do Windows.
+*.ps1 text eol=crlf
+*.bat text eol=crlf

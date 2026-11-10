@@ -1,0 +1,9 @@
+# Bibliotecas do pipeline de dados (ETL), com versão fixa para garantir reprodutibilidade.
+# Polars: biblioteca de tabelas muito rápida, escrita em Rust, que lê arquivos grandes sem sufocar a RAM.
+polars==2.1.0
+# psycopg: o "cabo" que liga o Python ao PostgreSQL (versão 3, com suporte ao COPY).
+psycopg[binary]==3.3.8
+# pydantic-settings: lê e valida as configurações do arquivo .env.
+pydantic-settings==2.16.2
+# httpx: cliente HTTP moderno (downloads com retomada, tempo limite, WebDAV).
+httpx==0.28.1

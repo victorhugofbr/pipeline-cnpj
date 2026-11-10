@@ -1,0 +1,12 @@
+# Regras de estilo do Python para TODO o projeto (etl/ e, no futuro, backend/).
+# A extensão Ruff do VS Code lê este arquivo automaticamente.
+
+line-length = 100          # padrão definido no documento de diretrizes
+target-version = "py312"   # versão mínima de Python do projeto
+
+# Pastas onde moram os NOSSOS módulos (para o Ruff separar "nossos" imports dos de terceiros).
+src = ["etl", "backend"]
+
+[lint]
+# E/F: erros básicos | I: ordem dos imports | UP: sintaxe moderna | B: armadilhas comuns
+select = ["E", "F", "I", "UP", "B"]

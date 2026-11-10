@@ -1,0 +1,43 @@
+# Integração contínua (CI): a cada push na main ou pull request, o GitHub cria uma máquina
+# limpa, instala o projeto do zero e roda a revisão de estilo e os testes.
+# Se algo falhar, aparece um X vermelho no commit e você recebe um aviso por e-mail.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  testes:
+    runs-on: ubuntu-latest
+    strategy:
+      # Roda duas vezes: na menor versão de Python que o projeto promete suportar (3.12)
+      # e na versão usada no desenvolvimento (3.14).
+      matrix:
+        python-version: ["3.12", "3.14"]
+    steps:
+      # 1. Baixa o código do repositório para a máquina do GitHub.
+      - uses: actions/checkout@v5
+
+      # 2. Instala o Python da vez. O cache guarda os pacotes baixados entre execuções,
+      #    para não baixar tudo de novo a cada push.
+      - uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+          cache-dependency-path: etl/requirements-dev.txt
+
+      # 3. Instala as mesmas versões fixadas que você usa no seu computador.
+      - name: Instalar dependências
+        run: pip install -r etl/requirements-dev.txt
+
+      # 4. Revisão de estilo e de erros comuns, com as regras do ruff.toml da raiz.
+      - name: Revisão de código (ruff)
+        run: ruff check .
+
+      # 5. Os testes. Rodam de dentro de etl/, onde está o pytest.ini.
+      #    Não precisam de banco, de internet nem do arquivo .env.
+      - name: Testes (pytest)
+        working-directory: etl
+        run: pytest -q

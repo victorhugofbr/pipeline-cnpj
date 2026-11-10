@@ -1,0 +1,59 @@
+# Planta dos serviços do projeto. O Docker Compose lê o arquivo .env automaticamente,
+# então ${POSTGRES_DB} e as outras variáveis são preenchidas com os valores do cofre.
+
+name: pipeline-cnpj
+
+services:
+  db:
+    # PostgreSQL 18, a versão estável atual. Usamos a imagem padrão (Debian), e não a "alpine",
+    # porque ela tem suporte mais completo a idiomas e ordenação de texto em português.
+    image: postgres:18
+    # Se o Docker cair e voltar (suspensão, reinício do Docker Desktop...), o banco religa
+    # sozinho. "unless-stopped" respeita quando VOCÊ o desliga com "docker compose stop".
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+
+    ports:
+      # Formato "ip:porta_no_windows:porta_no_conteiner".
+      # O "127.0.0.1" faz com que só o SEU computador acesse o banco, e não outros aparelhos do Wi-Fi.
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
+
+    volumes:
+      # Volume nomeado: funciona como um HD externo. Os dados sobrevivem
+      # mesmo que o contêiner seja apagado e recriado.
+      - pgdata:/var/lib/postgresql
+      # Empresta a pasta de scripts de inauguração (":ro" = somente leitura).
+      - ./infra/postgres/init:/docker-entrypoint-initdb.d:ro
+      # NOVO: empresta os arquivos SQL do ETL para dentro do contêiner, em /sql (somente leitura).
+      - ./etl/sql:/sql:ro
+
+    # Memória compartilhada que o PostgreSQL usa em consultas paralelas.
+    # O padrão do Docker (64 MB) causa erros em consultas grandes, como as nossas.
+    shm_size: 1gb
+
+    # Configurações de performance, ajustadas ao limite de 6 GB do WSL.
+    command:
+      - postgres
+      - --shared_buffers=1GB              # cache de dados do próprio PostgreSQL (~1/4 da memória)
+      - --effective_cache_size=3GB        # informa quanto cache existe no total, para planejar consultas
+      - --work_mem=32MB                   # memória para cada ordenação ou agrupamento (ORDER BY, GROUP BY)
+      - --maintenance_work_mem=512MB      # acelera a criação de índices, essencial na carga mensal
+      - --max_wal_size=4GB                # menos pausas durante cargas grandes de dados
+      - --random_page_cost=1.1            # informa que o disco é SSD/NVMe (leitura aleatória é barata)
+      - --shared_preload_libraries=pg_stat_statements   # liga o "radar" de consultas
+      - --log_min_duration_statement=300  # registra no log toda consulta que passar de 300 ms
+
+    healthcheck:
+      # O "porteiro": a cada 10 segundos, confere se o banco já está aceitando conexões.
+      # O "$$" faz o Docker Compose passar o "$" adiante, para ser lido DENTRO do contêiner.
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  pgdata:
