@@ -200,17 +200,12 @@ pipeline-cnpj/
 - Orquestração com Airflow, com alertas de falha.
 - Exportação para Parquet particionado, para consulta em data lake.
 
-## Sobre o projeto
-
-Construído como projeto de estudo, com o Claude como par de programação. Cada decisão foi validada
-com testes automatizados e com os dados reais da Receita.
-
 ## Dados e privacidade
 
 Os dados vêm do Cadastro Nacional da Pessoa Jurídica, publicado pela Receita Federal como dados
 abertos. Mesmo públicos, eles incluem **dados pessoais** (nomes de sócios e de empresários
 individuais, e-mails e telefones), protegidos pela **LGPD**. Por isso, este repositório não contém
-nenhum dado da base: os testes usam apenas arquivos sintéticos, e a pasta `data/` fica fora do Git.
+nenhum dado da base: os testes usam apenas arquivos sintéticos.
 
 ## Licença
 
